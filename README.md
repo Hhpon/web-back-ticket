@@ -1,29 +1,107 @@
-# web-back
+## 高铁订票小程序使用文档
+***
 
-## Project setup
-```
-npm install
+### 数据库具体表
+
+车票表：ticket
+用户信息表：user
+车票订单表： ticorder
+
+### 管理篇
+
+#### 管理员登录
+
+/login
+每次必须登录
+
+#### 管理员管理信息
+
+/addtic
+录入车票信息 入口为车票管理页面的左上角按钮
+车票信息录入的时候即默认可以把往后的十五天内的票全部发布(天数可调，选择十五天是考虑到资源占用问题),此处会使用一个算日期的小算法循环日期。可以重点看看
+每天零点清理前一天日期内的车票(根据时间来决定是否开发)
+具体内容为：车次号、出发城市、抵达城市、出发时间及抵达时间、票价、票价折扣、总票量、剩余票量
+
+车次号(text)、票价(num 元)、票价折扣（num）、总票量(num)、剩余票量(num) —— input
+出发城市、抵达城市 —— 城市选择器  // https://github.com/jcc/v-distpicker  使用该插件
+出发时间、抵达时间 —— 时间选择器  
+
+提交按钮，重置按钮
+
+提交时数据的格式
+
+```js
+// mongoDB 为存储数据库
+// ticket表
+{
+  date: 'YYYY-MM-DD',
+  trainNum: Text,
+  price: Num,
+  discount: Num,
+  totalVote: Num,
+  resVote: Num,
+  outCity: Text,
+  overCity: Text,
+  outTime: 'hh:mm',
+  overTime: 'hh:mm'
+}
 ```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
+/admin
+只可更改票价、票价折扣、剩余票量(只能修改某个车次的，无法批量修改)；
+删除车次(只能删除某个车次，无法批量删除)
+查询车次
+
+主体为车票列表，且按照车次序号排列，每页显示20条数据
+
+修改时弹窗会列出可修改的内容，如果修改内容的input为空，则默认不修改，如果点击取消亦认为不修改。
+
+#### 用户管理
+
+/user
+可以修改用户的用户名、身份证号、姓名
+
+主体为用户列表，按照注册时间先后排列，后注册的在前面，修改时会弹出弹窗修改内容，如果修改内容的input为空，则默认不修改，如果点击取消亦认为不修改。
+
+### 用户篇
+
+#### 注册登录
+
+/signin
+进入小程序后判断本地是否存储登录信息，如果没有，则跳转到登录页面，可以选择登录或者注册，否则为首页。
+登录信息为用户名与密码，登录成功以后本地会存储本人的用户名，进入个人信息页面之后会根据本人用户名发送请求，返回所有信息
+
+/signup
+注册信息内容: 用户名(用户名唯一)、密码、确认密码、身份证号、姓名(没有头像)，且只有管理员可以修改注册信息(暂不支持修改密码功能)
+
+注册成功以后数据库会有一个数据表
+
+user表
+```js
+{
+  userName: text(必须唯一),
+  passWord: text,
+  idCard: num,
+  name: text
+}
 ```
 
-### Compiles and minifies for production
-```
-npm run build
-```
+#### 首页
+/index
 
-### Run your tests
-```
-npm run test
-```
+首页为日期选择器、地址选择器、查询按钮组合而成，点击查询按钮跳转到车票详情
+地址选择器的内容会根据数据库ticket表查找outCity以及overCity来渲染具体的下拉框
 
-### Lints and fixes files
-```
-npm run lint
-```
+#### 车票详情页
+/ticdetail
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+内容: 出发站与终点站、出发日期、具体出发时间、具体到达时间、票价、余票、购买车票
+
+购买车票之后会携带本地的userName到表ticorder存储,可在订单页面查询并退票
+
+#### 订单详情页
+/order
+
+内容：出发地到终点站、车次、出发日期及时间、退票按钮(具体判断是否超过发车时间，超过不显示)
+
+页面加载过程中去ticorder表查询，返回所有符合该用户名的order，并倒序显示
