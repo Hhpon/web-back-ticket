@@ -12,7 +12,7 @@ module.exports = {
         'components': '@/components',
         'views': '@/views',
         'common': '@/common',
-        // 'api': '@/api',
+        'api': '@/api',
         // 'base': '@/base'
       }
     }
