@@ -19,16 +19,35 @@
       <el-form-item label="总票量" prop="totAmount">
         <el-input type="number" v-model.number="ticMes.totAmount"></el-input>
       </el-form-item>
+      <el-form-item label="车次时间" prop="date">
+        <el-date-picker
+          v-model="ticMes.date"
+          type="datetimerange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          :value-format="dateFormat"
+        ></el-date-picker>
+      </el-form-item>
+      <el-form-item label="出发城市" prop="outCity">
+        <v-distpicker @selected="selectedOut"></v-distpicker>
+      </el-form-item>
+      <el-form-item label="抵达城市" prop="overCity">
+        <v-distpicker @selected="selectedOver"></v-distpicker>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="submitForm('ruleForm')">立即创建</el-button>
         <el-button @click="resetForm('ruleForm')">重置</el-button>
       </el-form-item>
     </el-form>
-    {{ticMes.disCount}}
   </div>
 </template>
 
 <script>
+import VDistpicker from "v-distpicker";
+import { addTic } from "api/addtic";
+import { ERR_OK } from "common/js/config";
+
 export default {
   data() {
     let checkDis = (rule, value, callback) => {
@@ -40,11 +59,13 @@ export default {
     };
     return {
       ticMes: {
-        name: "",
         ticId: "",
         price: "",
         disCount: "",
-        totAmount: ""
+        totAmount: "",
+        date: "",
+        outCity: { province: "", city: "", area: "" },
+        overCity: { province: "", city: "", area: "" }
       },
       rules: {
         ticId: [{ required: true, message: "请输入车次号", trigger: "blur" }],
@@ -61,30 +82,33 @@ export default {
           { required: true, message: "请输入总票量", trigger: "blur" },
           { type: "number", message: "总票量必须为数字", trigger: "blur" }
         ],
-        name: [
-          { required: true, message: "请输入活动名称", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
+        date: [{ required: true, message: "请输入车次时间", trigger: "blur" }],
+        outCity: [
+          { required: true, message: "请输入出发城市", trigger: "blur" }
         ],
-        region: [
-          { required: true, message: "请选择活动区域", trigger: "change" }
-        ],
-        date1: [
-          {
-            type: "date",
-            required: true,
-            message: "请选择日期",
-            trigger: "change"
-          }
+        overCity: [
+          { required: true, message: "请输入抵达城市", trigger: "blur" }
         ]
-      }
+      },
+      dateFormat: "yyyy-MM-dd HH:mm"
     };
   },
   methods: {
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          alert("submit!");
+          console.log(this.ticMes);
+          addTic(this.ticMes).then(res => {
+            console.log(res);
+            if (res.data.code === ERR_OK) {
+              this.openSuccess();
+              this.resetForm(formName);
+            } else {
+              this.openLose();
+            }
+          });
         } else {
+          console.log(this.abc);
           console.log("error submit!!");
           return false;
         }
@@ -92,7 +116,29 @@ export default {
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();
+    },
+    selectedOut(data) {
+      this.ticMes.outCity.province = data.province.value;
+      this.ticMes.outCity.city = data.city.value;
+      this.ticMes.outCity.area = data.area.value;
+    },
+    selectedOver(data) {
+      this.ticMes.overCity.province = data.province.value;
+      this.ticMes.overCity.city = data.city.value;
+      this.ticMes.overCity.area = data.area.value;
+    },
+    openSuccess() {
+      this.$message({
+        message: "车票添加成功",
+        type: "success"
+      });
+    },
+    openLose() {
+      this.$message.error("车票添加失败");
     }
+  },
+  components: {
+    VDistpicker
   }
 };
 </script>

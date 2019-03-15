@@ -5,7 +5,6 @@ const whiteList = ['/login']
 
 router.beforeEach((to, from, next) => {
   if (getCookie()) {
-    console.log(getCookie());
     if (to.path === '/login') {
       next({ path: '/' })
     } else {

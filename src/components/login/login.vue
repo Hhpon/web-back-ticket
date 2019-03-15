@@ -5,10 +5,10 @@
       <div class="login-title">登录</div>
       <el-form :label-position="labelPosition" label-width="60px" :model="loginMes">
         <el-form-item label="账号">
-          <el-input v-model="loginMes.userName"></el-input>
+          <el-input v-model="loginMes.userName" @keyup.enter.native="submitHandle"></el-input>
         </el-form-item>
         <el-form-item label="密码">
-          <el-input type="password" v-model="loginMes.passWord"></el-input>
+          <el-input type="password" @keyup.enter.native="submitHandle" v-model="loginMes.passWord"></el-input>
         </el-form-item>
       </el-form>
       <el-button type="primary" @click="submitHandle" class="btn-container">提交</el-button>
