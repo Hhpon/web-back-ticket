@@ -4,7 +4,7 @@
       :model="ticMes"
       :rules="rules"
       ref="ruleForm"
-      label-width="100px"
+      label-width="150px"
       class="demo-ruleForm"
     >
       <el-form-item label="车次" prop="ticId">
@@ -16,8 +16,8 @@
       <el-form-item label="票价折扣(如七折)" prop="disCount">
         <el-input type="number" v-model.number="ticMes.disCount"></el-input>
       </el-form-item>
-      <el-form-item label="总票量" prop="totAmount">
-        <el-input type="number" v-model.number="ticMes.totAmount"></el-input>
+      <el-form-item label="总票量" prop="totalVote">
+        <el-input type="number" v-model.number="ticMes.totalVote"></el-input>
       </el-form-item>
       <el-form-item label="车次时间" prop="date">
         <el-date-picker
@@ -60,10 +60,10 @@ export default {
     return {
       ticMes: {
         ticId: "",
-        price: "",
-        disCount: "",
-        totAmount: "",
-        date: "",
+        price: '',
+        disCount: '',
+        totalVote: '',
+        date: ["2019-03-16 00:00", "2019-03-17 00:00"],
         outCity: { province: "", city: "", area: "" },
         overCity: { province: "", city: "", area: "" }
       },
@@ -78,7 +78,7 @@ export default {
           { type: "number", message: "票价折扣必须为数字", trigger: "blur" },
           { validator: checkDis, trigger: "blur" }
         ],
-        totAmount: [
+        totalVote: [
           { required: true, message: "请输入总票量", trigger: "blur" },
           { type: "number", message: "总票量必须为数字", trigger: "blur" }
         ],
@@ -95,26 +95,38 @@ export default {
   },
   methods: {
     submitForm(formName) {
+      if (
+        !this.ticMes.outCity.province ||
+        !this.ticMes.outCity.city ||
+        !this.ticMes.outCity.area
+      ) {
+        this._openLose("请输入完整的出发城市");
+        return;
+      } else if (
+        !this.ticMes.overCity.province ||
+        !this.ticMes.overCity.city ||
+        !this.ticMes.overCity.area
+      ) {
+        this._openLose("请输入完整的抵达城市");
+        return;
+      }
       this.$refs[formName].validate(valid => {
         if (valid) {
-          console.log(this.ticMes);
           addTic(this.ticMes).then(res => {
-            console.log(res);
             if (res.data.code === ERR_OK) {
-              this.openSuccess();
-              this.resetForm(formName);
+              this._openSuccess();
+              this._resetForm(formName);
             } else {
-              this.openLose();
+              this._openLose("车票添加失败");
             }
           });
         } else {
-          console.log(this.abc);
           console.log("error submit!!");
           return false;
         }
       });
     },
-    resetForm(formName) {
+    _resetForm(formName) {
       this.$refs[formName].resetFields();
     },
     selectedOut(data) {
@@ -127,14 +139,14 @@ export default {
       this.ticMes.overCity.city = data.city.value;
       this.ticMes.overCity.area = data.area.value;
     },
-    openSuccess() {
+    _openSuccess() {
       this.$message({
         message: "车票添加成功",
         type: "success"
       });
     },
-    openLose() {
-      this.$message.error("车票添加失败");
+    _openLose(message) {
+      this.$message.error(message);
     }
   },
   components: {

@@ -2,7 +2,7 @@
   <el-container>
     <el-header class="header-container" height="100px">高铁订票小程序后台</el-header>
     <el-container>
-      <el-aside width="150px">
+      <el-aside width="150px" class="aside">
         <el-menu
           :default-active="defaultActive"
           class="el-menu-vertical-demo"
