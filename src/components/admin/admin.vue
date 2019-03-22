@@ -6,8 +6,8 @@
       <el-table-column :align="align" prop="disCount" label="折扣" width="50"></el-table-column>
       <el-table-column :align="align" prop="totalVote" label="总票量" width="70"></el-table-column>
       <el-table-column :align="align" prop="resVote" label="剩余票量" width="80"></el-table-column>
-      <el-table-column :align="align" sortable prop="date" label="出发时间" :formatter="outTime"></el-table-column>
-      <el-table-column :align="align" sortable prop="date" label="抵达时间" :formatter="overTime"></el-table-column>
+      <el-table-column :align="align" sortable prop="outTime" label="出发时间"></el-table-column>
+      <el-table-column :align="align" sortable prop="overTime" label="抵达时间"></el-table-column>
       <el-table-column :align="align" prop="outCity" label="出发城市"></el-table-column>
       <el-table-column :align="align" prop="overCity" label="抵达城市"></el-table-column>
       <el-table-column :align="align" label="操作">
@@ -80,10 +80,10 @@ export default {
       });
     },
     outTime(row) {
-      return row.date[0];
+      return row.outTime;
     },
     overTime(row) {
-      return row.date[1];
+      return row.overTime;
     },
     _warnMes(message) {
       this.$notify({
