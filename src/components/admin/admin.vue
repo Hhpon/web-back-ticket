@@ -124,6 +124,11 @@ export default {
       this.editForm.id = row._id;
     },
     handleDelete(index, row) {
+      console.log(row);
+      if(row.totalVote > row.resVote){
+        this._warnMes('该车次已经乘客了，不可以使用删除功能！')
+        return;
+      }
       this._deltic(row._id);
     },
     handleCancel() {
