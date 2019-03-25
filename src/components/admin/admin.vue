@@ -1,5 +1,9 @@
 <template>
   <div class="admin">
+    <div>
+      <el-input v-model="searchText" placeholder="搜索" style="width:30%;margin-right:20px;"></el-input>
+      <el-button icon="el-icon-search" circle @click="searchHandle"></el-button>
+    </div>
     <el-table :data="ticDatas" stripe style="width: 100%">
       <el-table-column :align="align" prop="ticId" label="车次" width="70"></el-table-column>
       <el-table-column :align="align" prop="price" label="票价" width="70"></el-table-column>
@@ -38,7 +42,7 @@
 </template>
 
 <script>
-import { getTic } from "api/gettic";
+import { getTic, getSearch } from "api/gettic";
 import { editTic, delTic } from "api/addtic";
 import { ERR_OK } from "common/js/config";
 
@@ -56,6 +60,7 @@ export default {
       align: "center",
       dialogFormVisible: false,
       editForm: {},
+      searchText: "",
       rules: {
         price: [{ type: "number", message: "票价必须为数字", trigger: "blur" }],
         disCount: [
@@ -72,6 +77,22 @@ export default {
     this._getTic();
   },
   methods: {
+    searchHandle() {
+      console.log(this.searchText);
+      if (!this.searchText) {
+        this._warnMes("请先输入搜索内容");
+        return;
+      }
+      this._getSearch(this.searchText);
+    },
+    _getSearch(searchText) {
+      getSearch(searchText).then(res => {
+        console.log(res);
+        if (res.data.code === ERR_OK) {
+          this.ticDatas = res.data.searchResult;
+        }
+      });
+    },
     _getTic() {
       getTic().then(res => {
         if (res.status === ERR_OK) {
@@ -125,8 +146,8 @@ export default {
     },
     handleDelete(index, row) {
       console.log(row);
-      if(row.totalVote > row.resVote){
-        this._warnMes('该车次已经乘客了，不可以使用删除功能！')
+      if (row.totalVote > row.resVote) {
+        this._warnMes("该车次已经乘客了，不可以使用删除功能！");
         return;
       }
       this._deltic(row._id);
